@@ -2,7 +2,7 @@
 : 일대다 관계(OneToMany)는 항상 양방향 관계의 반대편(Inverse Side)이다. <br>
 : 다대일 관계(ManyToOne)는 항상 양방향 관계의 소유편(Owning Side)이다.
 
-## 1. 개요 (Summary)
+##
 ```php
 /** 
  * @ORM\OneToMany(targetEntity="App\Entity\Article", mappedBy="$user")

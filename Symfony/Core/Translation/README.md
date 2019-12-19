@@ -1,12 +1,11 @@
-# 번역 (Translation)
-
-## 개요 (Summary)
-- 설치
+# 번역(Translation)
+Updated 2019.12.17.Tue
 ```
 composer require symfony/translation
 ```
-- translation.yaml
 ```yaml
+# translation.yaml
+
 framework:
 
     default_locale: '%locale%'
@@ -18,21 +17,17 @@ framework:
         fallbacks:
             - '%locale%'
 ```
-- services.yaml
 ```yaml
+# services.yaml
+
     parameters:
         # ...
         # 지정할 언어 
         locale: 'en'
 ```
-## 템플릿 번역
-- Twig
+## 1. 템플릿에서는 ..
 ```twig
-<html lang="{app.request.locale}">
-
-<!-- ... -->
-
-</html>
+<html lang="{app.request.locale}"></html>
 ```
 : %locale%에 해당하는 언어셋이 지정된다.
 
@@ -48,25 +43,26 @@ framework:
 : {% trans %} 안의 내용은 'messages.xx.yaml'의 키값으로 변환된다.
 
 ##
-- messages.en.yaml
 ```yaml
+# messages.en.yaml
+
 some:
     key: Hello <b>Symfony</b>
 ```
-- Twig
+: 계층 형식으로 이용하고 싶은데 ...
 ```twig
 {{ some.key|trans }}
 ```
-: 계층 키값을 사용 할 수도 있다.
+: 템플릿에서 컴마로 사용하면 된다!
 ## 
-- Twig
 ```twig
 {{ some.key|trans|raw }}
 ```
 : raw를 사용한다면 html 태그를 반영해서 출력 할 수 있다.
-## 컨트롤러 번역
-- Controller
+## 2. 컨트롤러에서는 ..
 ```php
+// 컨트롤러 샘플
+
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -79,9 +75,10 @@ $message = $translator->trans('some.key');
 
 }
 ```
-## 경로(Route) 번역
-- annotations.yaml
+## 3. 경로를 통해 국적별로 분기하기!
 ```yaml 
+# annotations.yaml
+
 prefix:
     en: '' # 기본설정
     ko: '/ko'
@@ -90,8 +87,8 @@ prefix:
     # ...
 ```
 : 접두사로 설정되는 경로.
-- Controller
 ```php
+// 컨트롤러 샘플
 /**
  * @Route(
  * "en": "/test",
@@ -103,14 +100,15 @@ public function index() { // ... }
 ```
 : '/ko/test'로 접속하면 한국어로 번역이 되고, '/jp/test'로 접속하면 일본어로 번역된다.
 ## 복수화(Pluralization)
-- Controller
 ```php
+// 컨트롤러 샘플
 return $this->render(
     'count' => $number
 );
 ```
-- messages.xx.yaml
 ```yaml
+# messages.xx.yaml
+
 test: "{0}A|{1}B|{2}C|{3}D|{4}E"
 ```
 : 숫자에 해당하는 텍스트가 출력된다. 예를 들면, 'count'가 0이면 A가 출력된다.

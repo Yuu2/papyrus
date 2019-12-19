@@ -1,18 +1,17 @@
 # Security
-
-## 개요 (Summary)
-- Install
+Updated 2019.12.17.Tue
+## 등록 (Registration)
+- 유저 엔티티 생성를 생성하고 ...
 ```
 bin/console make:user
 ```
-
-## 등록 (Registration)
-- Component
+- 필요한 컴포넌트 설치!
 ```
 composer require symfony/orm-pack symfony/form symfony/security-bundle symfony/validator
 ```
-- User
 ```php
+// 유저 엔티티 샘플
+
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
@@ -33,10 +32,10 @@ composer require symfony/orm-pack symfony/form symfony/security-bundle symfony/v
      */
     private $password;
 ```
-- FormType
 ```php
-public function buildForm(FormBuilderInterface $builder, array $options)
-{
+// 폼타입 샘플
+
+public function buildForm(FormBuilderInterface $builder, array $options) {
     $builder
         ->add('email', EmailType::class)
         ->add('password', RepeatedType::class, [
@@ -48,8 +47,9 @@ public function buildForm(FormBuilderInterface $builder, array $options)
         ;
     }
 ```
-- Controller
 ```php
+// 컨트롤러 샘플
+
 $user = new SecurityUser();
 
 $form = $this->createForm(RegisterUserType::class, $user);
@@ -70,11 +70,10 @@ if($form->isSubmitted() && $form->isValid()) {
    return $this->redirectToRoute('home');
 }
 ```
-
-
 ## 로그인 (LogIn)
-- security.yaml
 ```yaml
+# security.yaml
+
 form_login:
     login_path: LOGIN_PATH
     check_path: CHECK_PATH
@@ -83,7 +82,6 @@ form_login:
     password_parameter: 'password'
     csrf_token_generator: security.csrf.token_manager
 ```
-- Template
 ```twig
 <form method="post">
     {% if error %}
@@ -105,8 +103,9 @@ form_login:
     </button>
 </form>
 ```
-- Controller
+
 ```php
+// 컨트롤러 샘플 
 public function login(AuthenticationUtils $authenticationUtils) {
     
     $error = $authenticationUtils->getLastAuthenticationError();
@@ -120,33 +119,33 @@ public function login(AuthenticationUtils $authenticationUtils) {
 ```
 
 ## 로그아웃 (LogOut)
-: security.yaml
 ```yaml
+# security.yaml
 logout:
-    path: /LOGOUR_PATH
+    path: /LOGOUT_PATH
     target: /REDIRECT_PATH
-```
-: Template
+``` 
 ```twig
 {% if app.user %}
     <a href="{{ path('logout') }}">LOGOUT</a>
 {% endif %}
 ```
 ## CSRF
-- Template
 ```twig
 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
 ```
 
-- security.yaml
 ```yaml
+# security.yaml
+
 form_login:
     csrf_token_generator: security.csrf.token_manager
 ```
 
 ## 기억하기 (Remember Me)
-: security.yaml
-```twig
+```yaml
+# security.yaml
+
 remember_me:
     secret: '%kernel.secret%'
     lifetime: 604800 # 1 week in seconds
@@ -159,9 +158,11 @@ remember_me:
 ```
 
 ## 인가 (Permission)
-#### 1. 지역적 범위
-- Controller
+#### 1. 지역 범위
+
 ```php
+// 컨트롤러 샘플
+
 /**
  *  @Security("has_role('ROLE_ADMIN')")
  */
@@ -170,17 +171,19 @@ public function index(Request $request) {
 }
 ```
 ##
-#### 2. 전역적 범위
-- security.yaml
-```twig
+#### 2. 전역 범위
+```yaml
+# security.yaml
+
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
 ```
 : /admin 으로 시작되면 관리자만 접근 할 수 있다.
---
-#### 3. 그 외
-- Controller
+##
+#### 3. 그 외에 ...
 ```php
+// 컨트롤러 샘플
+
 $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY')
 
 $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED')
@@ -188,8 +191,7 @@ $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED')
 $this->denyAccessUnlessGranted('ROLE_ADMIN')
 ```
 : 로그인 되어 있을 경우 메소드 처리
---
-- Template
+
 ```twig
 {% is_granted('IS_AUTHENTICATED_FULLY') %}
     HELLO SYMFONY 
@@ -198,14 +200,5 @@ $this->denyAccessUnlessGranted('ROLE_ADMIN')
 : 로그인 되어 있을 경우 표시
 
 ## Voter
-```
-bin/console make:voter
-
--> TestVoter
-```php
-$this->denyAccessUnlessGranted('CUSTOMIZE', $test)
-```
-: 인가처리를 엔티티와 연관시켜 커스터마이즈 할 수 있다.
-
 
 

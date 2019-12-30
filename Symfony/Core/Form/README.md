@@ -1,13 +1,12 @@
-# 폼 (Form)
-
-
-## 1. 개요
-- 설치
+# 폼(Form)
+updated 2019.12.31
 ```
+# 커맨드
 bin/console make:form
 ```
-- 사용법
 ```php
+// 컨트롤러
+
 $form = $this->createForm(ENTITY_FormType::class, ENTITY);
 $form->handleRequest($request);
 
@@ -15,10 +14,9 @@ if($form->isSubmitted() && $form->isValid()) {
     // ...
 }
 ```
-
 ## 2. 유효성 검사(Validation)
-- 컴포넌트 설치
 ```
+# 커맨드
 composer require symfony/validator doctrine/annotations
 ```
 #### B. 사용법

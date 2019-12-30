@@ -1,4 +1,4 @@
-# 번역(Translation)
+# Translation
 Updated 2019.12.17.Tue
 ```
 composer require symfony/translation
@@ -27,12 +27,12 @@ framework:
 ```
 ## 1. 템플릿에서는 ..
 ```twig
-<html lang="{app.request.locale}"></html>
+<html lang="{{ app.request.locale }}"></html>
 ```
 : %locale%에 해당하는 언어셋이 지정된다.
 
 ```twig
-<html lang="{app.request.locale}">
+<html lang="{{ app.request.locale }}">
 
 {% trans %}
 

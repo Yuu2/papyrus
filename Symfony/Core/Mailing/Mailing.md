@@ -1,9 +1,8 @@
-# Mailing
-
-
-## 1. 사용법
-- swiftmailer.yaml
+# 메일링(Mailing)
+updated 2019.12.31
 ```
+# swiftmailer.yaml
+
 swiftmailer:
     url: '%env(MAILER_URL)%'
     spool: { type: 'memory' }

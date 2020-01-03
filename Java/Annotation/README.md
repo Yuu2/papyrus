@@ -21,25 +21,27 @@ updated 2020.01.01
 * CLASS : 바이트 코드 파일까지 어노테이션 정보를 가진다.
 * RUNTIME : 바이트 코드는 물론 런타임시 리플렉션을 이용해서 어노테이션 정보를 얻을 수 있다.
 ## 
-```java
+```
 // 어노테이션 인터페이스
 import java.lang.annotation.*;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExampleAnnotation {
+public @interface 어노테이션 {
   
   // value 요소는 기본적으로 가지고 있다. (생략가능)
-  String value() default "";
+  타입 value() default 문자열;
 
-  int number() default 0;
+  // 메소드명은 커스터마이즈 가능하다.
+  타입 number() default 값;
+
 }
 ```
-```java
+```
 // 어노테이션 적용 클래스
-public class Example {
+public class 어노테이션구현클래스 {
   
-  @ExampleAnnotation(value="HELLO", number=1)
+  @ExampleAnnotation(value="HELLO", number=값)
   public void method() {}
 }
 ```

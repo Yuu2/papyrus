@@ -47,3 +47,54 @@ public interface 인터페이스 {
     // 인터페이스에 선언된 추상 메소드의 실체 메소드 선언.
 }; 
 ```
+## 중첩 인터페이스
+UI 프로그래밍을 할 때 이벤트처리용도로 자주 사용한다.
+```java
+public class Button {
+
+  public OnClickListener onClickListener;
+  
+  public void setOnClickListener(OnClickListener listener) {
+    this.listener = listener;
+  }
+
+  public void touch() {
+    listener.onClick();
+  }
+  
+  // 중첩 인터페이스
+  interface OnClickListener {
+    void onClick();
+  }
+}
+```
+```java
+public class CallListener implements Button.OnClickListener {
+  @Override
+  public void onClick() {
+    System.out.println("전화를 겁니다.");
+  }
+}
+```
+```java
+public class MessageListener implements Button.OnClickListener {
+  @Override
+  public void onClick() {
+    System.out.println("메시지를 보냅니다.");
+  }
+}
+```
+```java
+public class ButtonExample {
+  public static void main(String[] args) {
+    
+    Button btn = new Button();
+
+    btn.setOnClickListener(new CallListener());
+    btn.touch(); // 전화를 겁니다.
+  
+    btn.setOnClickListener(new MessageListener());
+    btn.touch(); // 메시지를 보냅니다.
+  }
+}
+```

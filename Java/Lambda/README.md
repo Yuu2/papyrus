@@ -1,5 +1,5 @@
 ## 람다식(Lambda)
-updated 2020.01.07
+updated 2020.01.12
 
 ## 문법
 ```
@@ -10,3 +10,13 @@ updated 2020.01.07
 - 하나의 실행문만 있다면 중괄호 {}를 생략 할 수 있다.
 - 매개변수가 없다면 람다식에서 매개 변수 자리가 없어지므로 빈 괄호()를 반드시 사용 해야 한다.
 - 중괄호 {}에 return문만 있을 경우, 람다식에서는 return문을 사용하지 않아도 된다.
+
+## Function 함수적 인터페이스
+- 매개값과 리턴 값이 있는 **apply** 메소드를 가지고 있다.
+
+|인터페이스|메소드|설명|
+|----|----|----|
+|Function<T,R>|R apply(T t)|객체 T를 객체 R로 매핑|
+|BiFunction<T,U,R>|R apply(T t, U u)|객체 T와 U를 객체 R로 매핑|
+|IntFunction<R>|R apply(int value)|int를 객체 R로 매핑|
+

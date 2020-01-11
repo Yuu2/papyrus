@@ -13,6 +13,7 @@ updated 2020.01.12
 
 ## Function 함수적 인터페이스
 - 매개값과 리턴 값이 있는 **apply** 메소드를 가지고 있다.
+- 매개값을 리턴값으로 **매핑(타입 변환)**하는 역할
 
 |인터페이스|메소드|설명|
 |----|----|----|
@@ -20,3 +21,11 @@ updated 2020.01.12
 |BiFunction<T,U,R>|R apply(T t, U u)|객체 T와 U를 객체 R로 매핑|
 |IntFunction<R>|R apply(int value)|int를 객체 R로 매핑|
 
+## Operator 함수적 인터페이스
+- 매개값과 리턴 값이 있는 **apply** 메소드를 가지고 있다.
+- **동일한 타입**으로 리턴값을 제공하는 역할
+
+|인터페이스|메소드|설명|
+|----|----|----|
+|UnaryOperator<T>|T apply(T t)|T를 연산 한 후 T리턴|
+|BinaryOperator<T>|T apply(T t)|T와 T를 연산 한 후 T리턴|

@@ -16,6 +16,8 @@ value 속성에 DI 컨테이너로 등록하는 Bean ID를 지정 할 수 있다
 |Principal|클라이언트 인증 유저 정보|
 
 ### 2. Handler 메소드의 반환 값
+## @RequestMapping
+HTTP GET, POST 등의 메소드를 구별한다.
 
 
 ## @PathVariable

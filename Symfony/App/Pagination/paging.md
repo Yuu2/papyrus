@@ -34,27 +34,28 @@ knp_paginator
 ```
 // Controller
 /**
- * @Route("/{page}", defaults={"page", "1"}, name="pagination")
+ * @Route("/pagination", name="pagination")
  */
-public function index(int $page) {
+public function index(Request $request) {
+    $page = $request->get('page');
     ...
-    $this->getDoctrine()->getRepository(엔티티::클래스)->커스텀메소드($page)
+    $this->getDoctrine()->getRepository(엔티티::클래스)->커스텀메소드($page);
 }
 ```
 페이징을 하기 위해서는 **page**파라미터가 필요하다. 기본값은 1로 설정한다.
 그리고 리포지토리의 find 메소드를 만들어야 한다.
-## 2. 커스텀메소드 작성
+## 2. 동적 쿼리 작성
 ```php
-<?php
 
 namespace App\Repository;
 
 use App\Entity\엔티티;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\Registry\RegistryInterface;
+
 // [1] 임포트
 use Knp\Component\Pager\PaginatorInterface;
-## 리포지토리
+
 ...
 
 class 리포지토리 extends ServiceEntityRepository {
@@ -67,13 +68,13 @@ class 리포지토리 extends ServiceEntityRepository {
     
     // [3] 커스텀 메소드 작성
     public function 커스텀메소드($page) {
-        $dbQuery = $this->createQueryBuilder('v')
+        $query = $this->createQueryBuilder('v')
             ->getQuery();
             
         /**
          * 세번째 매개변수 5는 웹페이지에 보낼 아이템의 기본 갯수다.
          */
-        return $this->paginator->paginate($dbQuery, $page, 5);       
+        return $this->paginator->paginate($query, $page, 5);       
     }
 }
 ```

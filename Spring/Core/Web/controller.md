@@ -1,5 +1,5 @@
 # Controller
-
+updated 2020.01.22
 ## @Controller
 POJO 클래스에 어노테이션을 부여하면 다음과 같은 효과를 얻을 수 있다.
 - 컴포넌트 스캔을 통해 DI컨테이너에 Bean 등록 가능.
@@ -50,3 +50,19 @@ public String 메소드() {
 }
 ```
 Handler 메소드가 호출되기 전에 실행되어 반환한 오브젝트가 Model에 격납되는 구조로 되어 있다.
+
+## @InitBinder
+컨트롤러로 접근하는 모든 웹 요청에 대한 **pre-process** 작업
+```
+/**
+ * 요청된 데이터의 공백 스페이스를 체크함.
+ */
+@InitBinder
+public void initBinder(WebDataBinder dataBinder) {
+    // Spring API에서 제공 되는 클래스. true이면 trim은 null이 된다.
+    StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
+  
+    dataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
+}
+```
+

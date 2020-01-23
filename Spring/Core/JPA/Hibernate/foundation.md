@@ -22,8 +22,6 @@ try {
     // 트랜잭션 시작
     session.beginTransaction();
         
-...
-
     // 트랜잭션 커밋
     session.getTransaction().commit();
 

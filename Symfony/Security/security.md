@@ -1,17 +1,14 @@
 # Security
-Updated 2019.12.17.Tue
+Updated 2020.01.26
 ## 등록 (Registration)
-- 유저 엔티티 생성를 생성하고 ...
 ```
 bin/console make:user
 ```
-- 필요한 컴포넌트 설치!
 ```
 composer require symfony/orm-pack symfony/form symfony/security-bundle symfony/validator
 ```
 ```php
-// 유저 엔티티 샘플
-
+// 유저 엔티티
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank()
@@ -33,8 +30,7 @@ composer require symfony/orm-pack symfony/form symfony/security-bundle symfony/v
     private $password;
 ```
 ```php
-// 폼타입 샘플
-
+// 폼 타입
 public function buildForm(FormBuilderInterface $builder, array $options) {
     $builder
         ->add('email', EmailType::class)
@@ -48,8 +44,7 @@ public function buildForm(FormBuilderInterface $builder, array $options) {
     }
 ```
 ```php
-// 컨트롤러 샘플
-
+// 컨트롤러 메소드
 $user = new SecurityUser();
 
 $form = $this->createForm(RegisterUserType::class, $user);
@@ -70,7 +65,7 @@ if($form->isSubmitted() && $form->isValid()) {
    return $this->redirectToRoute('home');
 }
 ```
-## 로그인 (LogIn)
+## 로그인 (Login)
 ```yaml
 # security.yaml
 
@@ -103,9 +98,8 @@ form_login:
     </button>
 </form>
 ```
-
 ```php
-// 컨트롤러 샘플 
+// 컨트롤러
 public function login(AuthenticationUtils $authenticationUtils) {
     
     $error = $authenticationUtils->getLastAuthenticationError();
@@ -118,7 +112,7 @@ public function login(AuthenticationUtils $authenticationUtils) {
 }
 ```
 
-## 로그아웃 (LogOut)
+## 로그아웃 (Logout)
 ```yaml
 # security.yaml
 logout:
@@ -157,8 +151,9 @@ remember_me:
 <input type="checkbox" name="_remember_me"> Remember me
 ```
 
-## 인가 (Permission)
-#### 1. 지역 범위
+
+## 인가 (Authorization)
+#### 지역 범위
 
 ```php
 // 컨트롤러 샘플
@@ -170,35 +165,40 @@ public function index(Request $request) {
     // 생략
 }
 ```
-##
-#### 2. 전역 범위
+#### 전역 범위
 ```yaml
 # security.yaml
+# /admin 으로 시작되면 관리자만 접근 할 수 있다.
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
 ```
-: /admin 으로 시작되면 관리자만 접근 할 수 있다.
-##
-#### 3. 그 외에 ...
-```php
-// 컨트롤러 샘플
 
+#### 도메인 계층
+```php
 $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY')
 
 $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED')
 
+// 관리자 외 접근 시 예외발생
 $this->denyAccessUnlessGranted('ROLE_ADMIN')
-```
-: 로그인 되어 있을 경우 메소드 처리
 
-```twig
-{% is_granted('IS_AUTHENTICATED_FULLY') %}
-    HELLO SYMFONY 
+```
+#### 웹 계층
+```
+{% is_granted('ROLE_ADMIN') %} 
 {% endif %}
+
+{% is_granted('IS_AUTHENTICATED_FULLY') %} 
+{% endif %}
+
+...
 ```
-: 로그인 되어 있을 경우 표시
-
-## Voter
-
+## 시큐리티 검사(Security Check)
+```
+composer require sensiolabs/security-check
+```
+```
+bin/console security:check
+```
 

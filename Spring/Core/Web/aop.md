@@ -1,5 +1,5 @@
 # 관점 지향적 프로그래밍 (Aspect Of Programming)
-updated 2020.01.24
+updated 2020.02.11
 
 ```
 @Aspect
@@ -69,7 +69,7 @@ public class MyAspect {
     public void beforeAction2() { ... }
 }
 ```
-또한, *연산자* 역시 사용가능하다.
+## @Pointcut
 ```
 @Aspect
 @Component
@@ -85,13 +85,31 @@ public class MyAspect {
     public void beforeAction() { ... }
 }
 ```
-### 3. 순서(Order)
+표현식의 재사용을 허용한다.
+## @Order
 Aspect가 어느 순서로 실행 할지 번호를 부여 할 수 있다.
 ```
 @Aspect
 @Order(1) ... @Order(2) ... @Order(3) ...
 public class 클래스 {}
 
-/* 만약 포인트컷을 찾을 수 없다는 에러가 출력되면 풀패키지 경로로 포인트컷을 설정할 것. */
+/* 만약 포인트컷을 찾을 수 없다는 에러가 출력되면 패키지.클래스 경로로 포인트컷을 설정할 것. */
 ```
+## JoinPoints
 
+### Method Signature
+메소드 문자열(String)을 취득한다.
+```
+public function 메소드(JoinPoint joinPoint) {
+  ...
+  MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+}
+```
+### Method Arguments
+인자 객체배열(Array) 취득한다.
+```
+public function 메소드(JoinPoint joinPoint) {
+  ...
+  Object[] args = joinPoint.getArgs();
+}
+```

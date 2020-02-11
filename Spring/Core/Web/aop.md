@@ -1,14 +1,17 @@
 # 관점 지향적 프로그래밍 (Aspect Of Programming)
 updated 2020.02.11
 
+## @EnableAspectJAutoProxy
+자바빈 설정 클래스에 해당 어노테이션을 선언.
+
+## @Aspect
+Aspect(관점) 역할을 지닌 클래스임을 명시한다.
 ```
 @Aspect
 public class 클래스 {}
 ```
-## @PointCut
-Advice를 어느 곳에 적용 할지에 대한 표현이다.
-일단 컴포넌트 스캔의 대상이 된 객체들만 해당 된다.
-
+## 표현식
+어드바이스 타입의 인자이며 execution으로 타겟 객체를 탐색한다.
 ### 1. 와일드카드(Wirdcard)
 ```
 @Before("execution(Modifier Return Type Target-Method)")
@@ -52,7 +55,7 @@ public void addYaong() {
 @Before("execution(* add*(com.yuu2.dev.aop.Example, ..))")
 ```
 
-### 2. 재사용(Reuse)
+### 2. 재사용가능(Reuseable)
 매번 execution() 문자열을 재선언 하는건 불편하므로 재사용 가능한 방법이 있다.
 ```
 @Aspect
@@ -95,21 +98,50 @@ public class 클래스 {}
 
 /* 만약 포인트컷을 찾을 수 없다는 에러가 출력되면 패키지.클래스 경로로 포인트컷을 설정할 것. */
 ```
-## JoinPoints
-
+## JoinPoint
+JoinPoint를 인자로 건내면 관점역할 메소드의 정보를 얻을 수 있다.
 ### Method Signature
 메소드 문자열(String)을 취득한다.
 ```
-public function 메소드(JoinPoint joinPoint) {
+public void 메소드(JoinPoint joinPoint) {
   ...
   MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 }
 ```
 ### Method Arguments
-인자 객체배열(Array) 취득한다.
+인자 객체배열(Array)를 취득한다.
 ```
-public function 메소드(JoinPoint joinPoint) {
+public void 메소드(JoinPoint joinPoint) {
   ...
   Object[] args = joinPoint.getArgs();
 }
 ```
+
+## @AfterReturning
+```
+@AfterRetunring(
+  pointcut="execution(패키지경로)",
+  returning=매개변수)
+public void 메소드(JoinPoint joinPoint, 타입 매개변수) {
+  ...
+}
+```
+**어떤 메소드가 리턴된 시점에 실행된다**<br>
+
+주로 데이터를 가공처리하거나 로깅, 시큐리티, 트랙잭션에 활용 된다.
+## @AfterThrowing
+이 기능으로 캡슐화 함으로써 AOP 관점에서 재사용하기 쉽다.
+```
+@AfterThrowing(
+  pointcut="execution(패키지경로)",
+  throwing=매개변수)
+public void 메소드(JoinPoint joinPoint, Throwable 매개변수) {
+  ...
+}
+```
+**어떤 메소드가 예외가 발생한 시점에 실행된다.**<br>
+
+주로 예외 처리 로그에 사용되며,
+예외처리를 알리거나 서버관리 측에 Mail 또는 SNS를 보낼 때 쓰여진다.
+
+

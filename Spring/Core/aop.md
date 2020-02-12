@@ -10,7 +10,7 @@ Aspect(관점) 역할을 지닌 클래스임을 명시한다.
 @Aspect
 public class 클래스 {}
 ```
-## 표현식
+## Execution
 어드바이스 타입의 인자이며 execution으로 타겟 객체를 탐색한다.
 ### 1. 와일드카드(Wirdcard)
 ```
@@ -72,32 +72,6 @@ public class MyAspect {
     public void beforeAction2() { ... }
 }
 ```
-## @Pointcut
-```
-@Aspect
-@Component
-public class MyAspect {
-
-    @Pointcut("execution(* com.yuu2.dev.*.get*(..))")
-    private void getter() {}
-    
-    @Pointcut("execution(* com.yuu2.dev.*.set*(..))")
-    private void setter() {}
-
-    @Before("!(getter() || setter())")
-    public void beforeAction() { ... }
-}
-```
-표현식의 재사용을 허용한다.
-## @Order
-Aspect가 어느 순서로 실행 할지 번호를 부여 할 수 있다.
-```
-@Aspect
-@Order(1) ... @Order(2) ... @Order(3) ...
-public class 클래스 {}
-
-/* 만약 포인트컷을 찾을 수 없다는 에러가 출력되면 패키지.클래스 경로로 포인트컷을 설정할 것. */
-```
 ## JoinPoint
 JoinPoint를 인자로 건내면 관점역할 메소드의 정보를 얻을 수 있다.
 ### Method Signature
@@ -117,7 +91,53 @@ public void 메소드(JoinPoint joinPoint) {
 }
 ```
 
-## @AfterReturning
+## Advice Types
+
+### @Pointcut
+```
+@Aspect
+@Component
+public class MyAspect {
+
+    @Pointcut("execution(* com.yuu2.dev.*.get*(..))")
+    private void getter() {}
+    
+    @Pointcut("execution(* com.yuu2.dev.*.set*(..))")
+    private void setter() {}
+
+    @Before("!(getter() || setter())")
+    public void beforeAction() { ... }
+}
+```
+표현식의 재사용을 허용한다.
+### @Order
+Aspect가 어느 순서로 실행 할지 번호를 부여 할 수 있다.
+```
+@Aspect
+@Order(1) ... @Order(2) ... @Order(3) ...
+public class 클래스 {}
+
+/* 만약 포인트컷을 찾을 수 없다는 에러가 출력되면 패키지.클래스 경로로 포인트컷을 설정할 것. */
+```
+
+### @After
+```
+@After("execution(패키지경로)")
+public void 메소드(JoinPoint joinPoint) {
+  ...
+}
+
+```
+**타겟 메소드가 실행된 직후에 실행된다**<br>
+
+주로 예외처리 또는 검사 할 때 사용되며 
+이 기능으로 캡슐화 함으로써 AOP 관점에서 재사용하기 쉽다.
+
+@After 어노테이션은 Success 또는 failure **(finally)** 일때 사용해야 한다.
+이는 코드가 예외 발생이 되어서는 안되며
+로깅, 검사와 같은 쉬운 작업들에서만 사용되야함을 의미한다.
+
+### @AfterReturning
 ```
 @AfterRetunring(
   pointcut="execution(패키지경로)",
@@ -126,11 +146,10 @@ public void 메소드(JoinPoint joinPoint, 타입 매개변수) {
   ...
 }
 ```
-**어떤 메소드가 리턴된 시점에 실행된다**<br>
+**타겟 메소드가 리턴된 시점에 실행된다**<br>
 
 주로 데이터를 가공처리하거나 로깅, 시큐리티, 트랙잭션에 활용 된다.
-## @AfterThrowing
-이 기능으로 캡슐화 함으로써 AOP 관점에서 재사용하기 쉽다.
+### @AfterThrowing
 ```
 @AfterThrowing(
   pointcut="execution(패키지경로)",
@@ -139,9 +158,37 @@ public void 메소드(JoinPoint joinPoint, Throwable 매개변수) {
   ...
 }
 ```
-**어떤 메소드가 예외가 발생한 시점에 실행된다.**<br>
+**타겟 메소드가 예외가 발생한 시점에 실행된다.**<br>
 
 주로 예외 처리 로그에 사용되며,
 예외처리를 알리거나 서버관리 측에 Mail 또는 SNS를 보낼 때 쓰여진다.
+이 기능으로 캡슐화 함으로써 AOP 관점에서 재사용하기 쉽다.
 
+### @Around
+```
+@Around("execution(패키지경로)")
+public void 메소드(ProceedJoinPoint joinPoint) throws Throwable {
+  
+  ...
+  long start = System.currentTimeMillis();
+  
+  // 타겟 메소드 실행부
+  
+  try {
+    Object result = joinPoint.proceed();
 
+  } catch(Exception e) {
+
+  }
+
+  long end = System.currentTimeMillis();
+
+  long duration = end - start / 1000.0; 
+
+  System.out.println(duration);
+}
+```
+**타겟 메소드가 실행되기 전후를 다룬다.**<br>
+주로 로깅, 검사, 시큐리티, 예외를 관리하기 위해 사용한다.
+특히, ProceedJoinPoint는 try catch 블록을 통해 예외 처리를 수행한다.
+(catch 블록에서 예외가 또 발생한다면 .. GG)

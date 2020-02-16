@@ -127,3 +127,6 @@ CSRF 공격으로 부터 방어하기 위함으로 HTML 폼에 추가적인 인�
 ```jsp
 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 ```
+## 유저 권한(User Role)
+
+### 액세스 제한(Restrict Access)

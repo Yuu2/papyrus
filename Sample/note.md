@@ -2,7 +2,7 @@
 updated  
 <br>
 
-## 개요 (Summary)
+## 개요
 
 ## 
 

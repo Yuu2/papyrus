@@ -32,4 +32,5 @@ public 생성자(리포지토리) {
 ## @EqualsAndHashCode
 객체의 equals()와 hashCode() 생성
 ## @Data
-@ToString, @EqualsAndHashCode, @Getter(모든 속성), @Setter(final이 아닌 것), @RequiredArgsConstructor 
+@Getter(모든 속성), @Setter(final이 아닌 것),
+@ToString, @EqualsAndHashCode,  @RequiredArgsConstructor 

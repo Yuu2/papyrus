@@ -1,5 +1,5 @@
 # 시큐리티 (Security)
-updated 2020.02.12<br>
+updated 2020.02.19<br>
 
 Spring MVC 를 표준으로 서술합니다.
 Spring Boot에서는 아래와 같은 몇몇 설정은 생략되오니 나는 부디 잊지 마시길 ...
@@ -48,28 +48,62 @@ public class DemoSecurityConfig extends WebSecurityConfigurerAdapter {
   ...
 }
 ```
-## 설정 클래스 메소드
+## 시큐리티 설정 메소드
+
 |메소드|설명|
 |---|---|
 |configure(AuthenticationManagerBuilder)|유저 설정(in memory, database, ldap, etc)|
 |configure(HttpSecurity)|어플리케이션에서 웹 경로,  로그인 로그아웃 등에 대한 시큐리티 설정|
+
+## 시큐리티 세부 메소드
+
+```java
+http.authrizeRequests()
+```
+
+요청을 가로챈 후 경로에 대한 세부 설정을 하기 위한 메소드는 다음과 같다.
+
+|메소드|설명|
+|---|---|
+|antMatchers(String s)|Ant 와일드카드를 사용하여 조건에 맞는 경로를 탐색|
+|regexMatchers(String s)|정규 표현식을 사용하여 조건에 맞는 경로를 탐색|
+
+경로를 설정한 후 어떠한 처리를 할 것인가 에대한 메소드들은 다음과 같다.
+
+|메소드|설명|
+|---|---|
+|access(String s)|주어진 SpEL 표현식의 결과가 true 라면 접근허용|
+|anonymous()|익명의 사용자 접근 허용|
+|authenticated()|인증된 사용자의 접근 허용|
+|denyAll()|모든 접근을 허용하지 않음.|
+|fullyAuthenticated()|사용자가 완전히 인증되면 접근허용|
+|hasAnyRole(String s1, s2 ...)|사용자가 주어진 역할이 있다면 접근허용|
+|hasAuthority(String s)|사용자가 주어진 권한이 있다면 접근허용|
+|hasRole(String s)|사용자가 주어진 역할이 있다면 접근허용|
+|not()|다른 접근 방식을 무효화|
+|permitAll()|무조건 접근 허용|
+|rememberMe()|기억하기를 통해 인증된 사용자의 접근을 허용|
 
 ## 인증처리(로그인 / 로그아웃)
 기초적인 로그인, 로그아웃이다.
 ```java
 @Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests()
-				.anyRequest().authenticated()
+		
+    http.authorizeRequests()
 
-			// 로그인
+		  .anyRequest().authenticated()
+    
+      // .anyMatchers("/test/**") '**'는 서브디렉토리를 모두 허용한다는 의미.
+
+			/* 로그인 */
 			.and()
 				.formLogin()
 				.loginPage("로그인폼")
 				.loginProcessingUrl("로그인처리")
 				.permitAll()
 
-			// 로그아웃
+			/* 로그아웃 */
 			.and()
 				.logout()
 				.permitAll();
@@ -80,20 +114,18 @@ JSP 템플릿에서는 아래와 같은 폼을 이용 할 수 있다.
 <form:form action="${pageContext.request.contextPath}/authenticateTheUser" method="POST" class="form-horizontal">
 
   <div class="form-group">
-      <div class="col-xs-15">
-          <div>							
-              <c:if test="${param.error != null}">            
-                <div class="alert alert-danger col-xs-offset-1 col-xs-10">
+      <div>							
+          <c:if test="${param.error != null}">            
+              <div class="alert alert-danger col-xs-offset-1 col-xs-10">
                   유효하지 않은 계정입니다.
-                </div>
-              </c:if>
+              </div>
+          </c:if>
                 
-              <c:if test="${param.logout != null}">            
-                <div class="alert alert-success col-xs-offset-1 col-xs-10">
+          <c:if test="${param.logout != null}">            
+              <div class="alert alert-success col-xs-offset-1 col-xs-10">
                   로그아웃 처리 되었습니다.
-                </div>
-              </c:if>
-          </div>
+              </div>
+          </c:if>
       </div>
   </div>
 
@@ -127,6 +159,18 @@ CSRF 공격으로 부터 방어하기 위함으로 HTML 폼에 추가적인 인�
 ```jsp
 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 ```
-## 유저 권한(User Role)
-
-### 액세스 제한(Restrict Access)
+## 403 에러페이지 핸들링
+인증되지 않은 접근이 있을 경우 해당 경로로 리다이렉트
+```java
+.and()
+.exceptionHandling()
+.accessDeniedPage("에러페이지경로");
+```
+## 인가된 컨텐츠
+루팅을 인가처리 하는 것 이외에 요소 단위로 인가처리 하는 방법을 다룬다.
+#### JSP
+```jsp
+<sec:authorize access="hasRole('ADMIN')">
+		<p>인증이 필요한 컨텐츠<p>
+</sec:authorize>
+```

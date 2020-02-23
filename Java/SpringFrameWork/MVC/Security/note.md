@@ -1,5 +1,5 @@
 # 시큐리티 (Security)
-updated 2020.02.19<br>
+updated 2020.02.23<br>
 
 Spring MVC 를 표준으로 서술합니다.
 Spring Boot에서는 아래와 같은 몇몇 설정은 생략되오니 나는 부디 잊지 마시길 ...
@@ -111,20 +111,16 @@ http.authrizeRequests()
 ```
 JSP 템플릿에서는 아래와 같은 폼을 이용 할 수 있다.
 ```jsp
-<form:form action="${pageContext.request.contextPath}/authenticateTheUser" method="POST" class="form-horizontal">
+<form:form action="${pageContext.request.contextPath}/authenticate" method="POST" class="form-horizontal">
 
   <div class="form-group">
       <div>							
           <c:if test="${param.error != null}">            
-              <div class="alert alert-danger col-xs-offset-1 col-xs-10">
-                  유효하지 않은 계정입니다.
-              </div>
+            유효하지 않은 계정입니다.
           </c:if>
                 
           <c:if test="${param.logout != null}">            
-              <div class="alert alert-success col-xs-offset-1 col-xs-10">
-                  로그아웃 처리 되었습니다.
-              </div>
+            로그아웃 처리 되었습니다.
           </c:if>
       </div>
   </div>
@@ -174,3 +170,46 @@ CSRF 공격으로 부터 방어하기 위함으로 HTML 폼에 추가적인 인�
 		<p>인증이 필요한 컨텐츠<p>
 </sec:authorize>
 ```
+## 데이터베이스 보안
+#### Plain-Text
+- 암호화 되지 않은 순수 문자열로 이루어져 있다.
+- 데이터베이스 상에서 전치사 **noop**이 더해져 보존된다.
+- 인메모리 인증(Deprecated)에서 테스트용도로 사용한다.
+```java
+  @Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		
+		UserBuilder users = User.withDefaultPasswordEncoder();
+
+		auth.inMemoryAuthentication().withUser(
+      users.username("yuu2")
+        .password("1234")
+        .roles("ADMIN"))
+	}
+```
+#### bcrypt
+- 스프링 시큐리티에서 권장하는 암호화 알고리즘
+- 암호화된 해싱을 단방향으로 수행
+- 패스워드를 보호하기 위해 무작위로 정렬
+## 데이터베이스 유저 인증
+스프링은 데이터베이스로 부터 유저 정보를 취득할 수 있는 기본적인 기능을 제공하고 있다.
+
+1. 테이블
+- users (username, password, enabled)
+- authorities (username, authority)
+
+2. 시큐리티 설정  
+```java
+// SecurityConfig.java
+@Autowired
+private DataSource dataSource;
+
+@Override
+protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	auth.jdbcAuthentication().dataSource(dataSource);
+}
+```
+위 방법은 스프링에 부합하는 틀 안에서 유저정보를 취득하거나 보존해야하는 애로사항이 있다.
+
+## 데이터베이스 커스텀 유저 인증
+

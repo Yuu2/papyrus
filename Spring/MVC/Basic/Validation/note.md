@@ -8,6 +8,7 @@ updated 2020.02.24
 private String name;
 ```
 기본적으로 제공. int형의 null검사는 랩퍼클래스 (Integer 타입)일 필요성이 있다.
+
 ## @Size
 ```
 @Size(min=1, max=10)
@@ -55,6 +56,7 @@ public @interface ValidTest() {
 ```
 어노테이션 인터페이스를 생성해야 한다. <br>
 다음 제약조건에 해당하는 구현 클래스가 필요하다.
+
 ```java
 public class TestValidator implements ConstraintValidator<ValidTest, String> {
     

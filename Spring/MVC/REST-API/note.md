@@ -1,63 +1,57 @@
-## Rest API
-updated 2020.01.15
+# REST API
+updated 2020.02.25
+
+## 개요
+REST(Representational State Transfer)는 로이 필딩(Roy Fielding)이 자신의 2000년 박사 학위 논문에 정의한 웹 기반 아키텍쳐.
+#### XML
+```xml
+# todo
+```
+#### JSON
+```json
+{
+  "id": 1,
+  "name": "yuu2",
+  "active": true,
+  "skill": null
+}
+```
+JSON에는 다음과 같은 기술을 할 수 있다.
+- Number : 따옴표를 붙이지 않는다.
+- String : 쌍 따옴표를 붙인다.
+- Boolean : true, false
+- 중첩 JSON object
+- Array
+- null
+## REST HTTP
+|메소드|동작|
+|---|---|
+|POST|새로운 엔티티 생성|
+|GET|엔티티 불러오기|
+|PUT|엔티티 갱신|
+|DELETE|엔티티 삭제|
 
 ## @RestController
+- @Controller의 확장판으로 REST 요청과 응답을 핸들링한다.
+- Spring REST는 자동으로 Java POJO를 JSON으로 변환해준다.
 
-## @Data
+## JSON To POJO
+Json 확장자를 자바 POJO로 불러오기 위해서는
+**jackson-databind** 라이브러리가 필요하다.
+(https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind)
+<br><br>
+예제는 다음과 같다.
 
-## 컬렉션 조회 (OneToMany)
+```java
+/* 프로젝트 경로의 json/test.json 파일을 매핑*/
+Apple apple = mapper.readValue(new File("json/test.json", Apple.class));
 ```
-// [1] Api 매핑
-@GetMapping("/api")
-public List<엔티티DTO> api() {
-    
-    List<엔티티> entities = find쿼리
-    
-    return entities.stream()
-        .map(엔티티DTO::new)
-        .collect(Collectors.toList());
-}
+json파일로 부터 자바 객체를 생성 할 수 있다. <br>
+한 편, default 설정으로는 해당 객체와 json의 데이터가 완전히 **일치 해야된다**는 애로사항이 있다. 
+```java
+@JsonIgnoreProperties(ignoreUnknown=true)
 ```
-```
-// [2] 쿼리 작성
-public List<Entity> 쿼리() {
-    return em.createQuery(
-        "select distinct e from 엔티티 e" +
-        " join fetch e.조인테이블 a" + 
-        ...
-    ).getResultList();
-}
-```
-**distinct**는 1대다 Row의 중복조회를 방지해준다.
-그러나, 컬렉션을 패치 조인하게 되버리면 페이징이 불가능하다.
-그러면 페이징, 컬렉션 엔티티를 어떻게 함께 조회 할 수 있을까.
+**@JsonIgnoreProperties** 어노테이션 타입을 지정하면 자바 객체와 데이터가 일치하지 않아도 된다.
 
-- XToOne관계를 모두 패치 조인한다. XToOne 관계는 Row수를 증가 시키지 않으므로
-페이징 쿼리에 영향을 주지 않는다.
-- 컬렉션은 지연 로딩으로 조회한다.
-- 지연 로딩 성능 최적화를 위해, **hibernate.default_batch_size** 또는 **@BatchSize**를 적용한다.
 
-```
-@GetMapping("/api")
-public List<엔티티Dto> api(
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @RequestParam(value = "limit", defaultValue = "100") int limit) {
-      
-    List<엔티티> entities = find쿼리(offset, limit);
-    List<엔티티Dto> result = entities.stream()
-        .map(e -> new 엔티티Dto(e))
-        .collect(toList());
-    return result;
-}
-```
-```
-# application.yml
-Spring:
-    jpa:
-        properties:
-            hibernate:
-                default_batch_fetch_size: 1000 # 전역 최적화 설정
-```
-find쿼리는 위 쿼리와 동일하다. 그러나 DB 데이터 전송량이 최적화된다. 패치 조인 방식과 비교해서 쿼리 호출 수가 약간 증가하지만
-DB 데이터 전송량이 감소한다. XToOne관계는 페이징에 영향을 주지 않는다. 따라서 XToOne 관계는 패치 조인으로 쿼리 수를 미리 줄이고 
-나머지는 위 옵션(100 ~ 1000)으로 최적화 할 것. 
+## POJO To JSON

@@ -5,21 +5,11 @@ Spring MVC 를 표준으로 서술합니다.
 Spring Boot에서는 아래와 같은 몇몇 설정은 생략되오니 나는 부디 잊지 마시길 ...
 ## Spring Security 설치하기
 ### 의존성 주입
-- 메이븐(Maven)
-```XML
-<dependency>
-  <groupId>org.springframework.security</groupId>
-  <artifactId>spring-security-web</artifactId>
-  <version>${springsecurity.version}</version>
-</dependency>
+- Spring Security Web
+- Spring Security Config
+- Spring Security Taglibs
 
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-web</artifactId>
-    <version>${springsecurity.version}</version>
-</dependency>
-```
-Spring Security는 특히 버전에 민감하므로 프레임워크와 대응하는 버전들을 맞춰서 기술해야한다.
+Spring Security는 스프링프레임워크 버전에 대응되는 버전들을 맞춰서 기술해야한다.
 
 ### 필터 클래스 작성
 - XML 
@@ -43,7 +33,7 @@ public class SecurityWebApplicationInitializer extends AbstractSecurityWebApplic
 ```java
 @Configuration
 @EnableWebSecurity
-public class DemoSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   ...
 }
@@ -88,26 +78,26 @@ http.authrizeRequests()
 기초적인 로그인, 로그아웃이다.
 ```java
 @Override
-	protected void configure(HttpSecurity http) throws Exception {
+protected void configure(HttpSecurity http) throws Exception {
 		
-    http.authorizeRequests()
-
-		  .anyRequest().authenticated()
+  http.authorizeRequests()
+	  .anyRequest()
+    .authenticated()
     
-      // .anyMatchers("/test/**") '**'는 서브디렉토리를 모두 허용한다는 의미.
+  // .anyMatchers("/test/**") '**'는 서브디렉토리를 모두 허용한다는 의미.
 
-			/* 로그인 */
-			.and()
-				.formLogin()
-				.loginPage("로그인폼")
-				.loginProcessingUrl("로그인처리")
-				.permitAll()
+	/* 로그인 */
+	.and()
+		.formLogin()
+		.loginPage("로그인폼")
+		.loginProcessingUrl("로그인처리")
+		.permitAll()
 
-			/* 로그아웃 */
-			.and()
-				.logout()
-				.permitAll();
-	}
+	/* 로그아웃 */
+	.and()
+		.logout()
+		.permitAll();
+}
 ```
 JSP 템플릿에서는 아래와 같은 폼을 이용 할 수 있다.
 ```jsp
@@ -194,13 +184,13 @@ CSRF 공격으로 부터 방어하기 위함으로 HTML 폼에 추가적인 인�
 ## 데이터베이스 유저 인증
 스프링은 데이터베이스로 부터 유저 정보를 취득할 수 있는 기본적인 기능을 제공하고 있다.
 
-1. 테이블
+#### 기본 테이블
 - users (username, password, enabled)
 - authorities (username, authority)
 
-2. 시큐리티 설정  
 ```java
 // SecurityConfig.java
+
 @Autowired
 private DataSource dataSource;
 
@@ -212,4 +202,126 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 위 방법은 스프링에 부합하는 틀 안에서 유저정보를 취득하거나 보존해야하는 애로사항이 있다.
 
 ## 데이터베이스 커스텀 유저 인증
+스프링프레임워크 버전과 대응되는 **Spring Transaction**, **Spring ORM**이 필요하다. 
 
+```java
+// SecurityConfig.java
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.authenticationProvider(authenticationProvider());
+  }
+
+  @Override
+	protected void configure(HttpSecurity http) throws Exception {
+
+		http.authorizeRequests()
+			
+			.formLogin()
+				.loginPage("/login")
+				.loginProcessingUrl("/authenticate")
+        // 성공시 핸들링
+				.successHandler(customAuthenticationSuccessHandler)
+				
+        .permitAll()
+			.and()
+			.logout().permitAll()
+			.and()
+			.exceptionHandling().accessDeniedPage("/error403");
+	}
+
+  @Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+  @Bean
+	public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+		                          auth.setUserDetailsService(userService);
+		                          auth.setPasswordEncoder(passwordEncoder());
+		return auth;
+	}
+
+}
+```
+UserService는 반드시 **UserDetailsService**를 상속해야한다.
+```java
+// UserSerivce.java
+
+public interface UserService extends UserDetailsService {
+  void save(User user);
+}
+```
+다음은 UserService 구현체에 대해서 기술 할 것이다.
+```java
+// UserServiceImpl.java
+@Service
+public class UserServiceImpl implements UserService {
+
+	...
+	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
+	@Override
+	@Transactional
+	public void save(CrmUser user) {
+		User user = new User();
+      ...
+
+      // 비밀번호 암호화
+      user.setPassword(passwordEncoder.encode(user.getPassword()));
+      // 디폴트 유저 권한 설정
+      user.setRoles(Arrays.asList(roleDao.findRoleByName("ROLE_MEMBER")));
+      ...
+	}
+
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userDao.findByUserName(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("");
+		}
+		return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+	}
+
+	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+	}
+}
+```
+다음은 성공시 핸들링하는 방법에 대해 기술한다.
+```java
+@Component
+public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+  @Autowired
+  private UserService userService;
+	
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
+
+		String username = authentication.getName();
+		
+		User user = userService.findByUserName(username);
+		
+		HttpSession session = request.getSession();
+		            session.setAttribute("user", user);
+		
+		response.sendRedirect(request.getContextPath() + "/");
+	}
+}
+```

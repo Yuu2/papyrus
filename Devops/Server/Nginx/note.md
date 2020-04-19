@@ -20,8 +20,7 @@ updated 2020.04.19
 ```
 apt-get update && apt-get install nginx
 ```
-우분투 계열에서는 설치 한 후 실행 중인 프로세스를 확인 해보면
-곧 바로 서비스가 시작 됨을 알 수 있다.
+우분투 계열에서는 설치 한 후 실행 중인 프로세스를 확인 해보면 곧 바로 서비스가 시작 됨을 알 수 있다.
 ```
 ps aux | grep nginx
 
@@ -38,9 +37,9 @@ yum install nginx
 ```
 yum install epel-release
 ```
-epel-release를 설치 해주어야 한다.
-그리고 난 후 nginx를 다시 설치하고 센토스에서는 자동적으로 nginx를 실행시키지 않기에
-커맨드로 실행 시켜 주어야 한다.
+epel-release를 설치 해주어야 한다. 그리고 난 후 <br>
+nginx를 다시 설치하고 센토스에서는 자동적으로 nginx를 실행시키지 않기에 <br>
+커맨드로 실행 시켜 주어야 한다. <br>
 ```
 service nginx start
 ```
@@ -93,8 +92,8 @@ nginx 폴더 하의 **configure** 파일을 통해 명령어로 환경설정을 
 --pid-path=/var/run/nginx.pid 
 --with-http_ssl_module
 ```
-뭘 해야 할 지 모를 때 에는
-**--help** 플래그를 붙인다. 어떻게 환경설정을 해야 할 지 상세히 설명 해준다.
+뭘 해야 할 지 모를 때는 <br>
+**--help** 플래그를 붙인다. 어떻게 환경설정을 해야 할 지 상세히 설명 해준다. <br>
 혹은 웹사이트 방문 http://nginx.org/en/docs/configure.html
 
 ### 컴파일
@@ -105,7 +104,6 @@ apt-get install build-essential
 # CentOS
 yum groupinstall "Development Tools"
 ```
-## 컴파일
 ```
 # 컴파일 명령어
 make
@@ -113,8 +111,26 @@ make
 # 설치 명령어
 make install
 ```
+## 서비스
+
+### systemd
+- start & restart
+- stop
+- reload (configuration)
+<br>
+Init Script(https://www.nginx.com/resources/wiki/start/topics/examples/initscripts/)
+```
+systemctl start nginx
+systemctl stop nginx
+systemctl status nginx (상태 조회)
+systemctl enable nginx (symlink 생성)
+```
+symlink를 생성하면 운영체제를 재시작 시켜줘야한다. 
+```
+reboot
+```
 
 ## 참조 (Reference)
-http://nginx.org/
-https://ko.wikipedia.org/wiki/Nginx
+http://nginx.org/ <br>
+https://ko.wikipedia.org/wiki/Nginx <br>
 https://opentutorials.org/module/384/3462

@@ -1,5 +1,5 @@
 # NGINX
-updated 2020.05.16
+updated 2020.05.17
 <br>
 
 ## 개요
@@ -83,8 +83,8 @@ nginx 폴더 하의 **configure** 파일을 통해 명령어로 환경설정을 
 ```
 ./configure 
 
---sbin-path=/usr/bin/nginx (nginx 실행파일 경로)
---conf-path=/etc/nginx/nginx.conf (nginx 설정파일 경로)
+--sbin-path=/usr/bin/nginx
+--conf-path=/etc/nginx/nginx.conf
 --error-log-path=/var/log/nginx/error.log
 --http-log-path=/var/log/nginx/access.log
 --with-pcre
@@ -135,7 +135,6 @@ reboot
 ## 문법
 Nginx의 소스코드를 작성하기 위해서 규약(Term)을 이해해야한다.
 
-### Context
 ```conf
 # /etc/nginx/nginx.conf (default)
 
@@ -144,43 +143,183 @@ events {
 }
 
 http {
-  
-  # 기본적으로 제공되는 타입으로 지정하고 싶으면
-  include mime.types;
-  
-  # 개별로 지정하고 싶으면
-  types {
-    
-    text/html;
-    text/css;
-    
-    ...
-  }
 
+  # 타입 블록
+  type {}
+
+  # 서버 블록
   server {
     
     listen      포트;
     server_name 도메인;
     root        공개루트 경로
 
-    location {
-      ...
-    }
+    # 로케이션 블록
+    location {}
   }
 }
 ```
-Context는 일반적인 프로그래밍 문법의 Scope 개념과 동일하다. <br>
+컨텍스트는 일반적인 프로그래밍 문법의 Scope 개념과 동일하다. <br>
 - http 컨텍스트에는 http와 관련된 것들을 기술하며 
 - server 컨텍스트에는 서버 가상호스트 관련 한 것들을 기술한다.
 - location 컨텍스트에는 부모 서버로 접근하는 요청들에 관련해 기술한다.
 <br><br>
+
 문법 오류를 검사는 아래 명령어로 수행한다.
 ```
 nginx -t
 ```
+### types 블록
+전역 블록에 선언하며 기본적으로 아래와 같이 types 블록을 선언하여 <br>
+어떤 타입의 문서를 공개 할 지 선언하는 문법이다.
+```
+types {
+    
+  text/html;
+  text/css;
 
-### Directive
+  ...
+}
+```
 
+또는, Nginx에서 기본적으로 제공하는 타입으로 간편하게 이용 할 수도 있다.  
+```
+include mime.types;**
+```
+types {} 블록 위치에 선언하면 된다.
+
+### location 블록
+
+#### 1. Prefix Match
+```
+location {
+  
+  location /url {
+
+    return 200 'Nginx Prefix Match Test';
+  }
+}
+```
+**접두사에 해당되는 경로**에 액세스 할 때 리턴. <br>
+('/url12345', '/url/abc'로 액세스 해도 설정한 값으로 리턴 된다.)
+
+#### 2. Exact Match
+```
+location {
+  
+  location = /url {
+
+    return 200 'Nginx Exact Match Test';
+  }
+}
+```
+**정확한 경로**에 액세스 할 때 리턴.
+
+#### 3. Regex Match
+```
+location {
+  
+  location ~ /url[0-9] {
+
+    return 200 'Nginx Regex Match Test';
+  }
+}
+```
+**정규식표현**에 해당되는 경로에 액세스 할 때 리턴 <br>
+1. ***~** 는 **~에 해당되지 않는 경로**에 액세스 할 때 리턴한다.
+2. **^~** 는 **정규표현식 경로와 중첩된 경로**에 액세스 할 때 우선적으로 리턴한다.
+
+## 변수 및 조건문
+
+### 1. 변수 선언
+```
+set $var '변수';
+```
+### 2. Nginx에서 제공하는 변수
+```
+$host 호스트명
+$uri  URI
+$arg  파라미터 ($arg_test -> test=1234, $arg_name -> name=가나다라)
+```
+그 외에는 아래 링크를 참조 할 것.
+https://nginx.org/en/docs/varindex.html
+```
+# 예제
+location /test {
+  return 200 "$host\n$uri\n";
+}
+```
+### 3. 조건문
+```
+# 예제 (?api=1234 또는 ?api=가나다라를 입력해야 200을 리턴)
+server {
+  if ($arg_api ~ 1234|가나다라) {
+
+    return 200;
+  }
+}
+```
+## rewrite
+요청을 통해서 주어진 URL의 규칙을 변경해서 웹서비스를 보다 유연하게 만드는 방법.
+
+```
+server {
+  
+  # 예제1).
+  # "/path1/문자열" 경로로 접근하면 "/test" 경로로 재작성.
+  
+  rewrite ^/path1/\w+ /test;
+
+  # 예제2).
+  # "/path2/문자열" 경로로 접근하면 "/test/문자열" 경로로 재작성.
+
+  rewrite ^/path2/(\w+) /test/$1;
+
+  # 재작성 된 경로를 확인하고 200을 응답 할 지 결정.
+  location = /test {
+    return 200 "hello nginx";
+  }
+
+}
+```
+## try_files
+요청이 있을 때 **파일이 존재하면 응답하고 그렇지 않으면 다음 경로로 재작성(rewrite)** 한다.
+```
+server {
+  
+  try_files $uri image.png /path2 /path3;
+
+  location = /path2 {
+    return 200 "200";
+  }
+
+  location = /path3 {
+    return 404 "404";
+  }
+}
+```
+위 예제를 설명하자면 <br> 
+ 첫번 째, 클라이언트가 접근한 URI($uri)가 서버에 존재하지 않으면 다음 인수로 변경. <br>
+ 두번 째, 클라이언트가 접근한 image.png가 서버에 존재하지 않으면 다음 인수로 변경. <br>
+ 세번 쨰, 재작성 되는건 **가장 마지막 인수**의 /path3이며 문자열 "404"를 응답한다.
+
+## logging
+기본적으로 NGINX에서는 요청이 왔을 때 **access.log**와 에러가 발생 했을 때 **error.log** 두가지 로그를 기록한다. <br><br>
+한 편, 커스텀 로그를 기록 하는 방법과 이러한 로그를 기록 하는 행위는 서버에 부하를 일으키므로 무효화 할 수도 있다.
+```
+...
+
+location /test {
+  # 커스텀 액세스 로그
+  access_log /var/log/nginx/커스텀파일이름아무거나.log;
+
+  # 무효화
+  access_log off;
+
+  return 200 "Hello Nginx";
+}
+
+```
 
 
 ## 참조 (Reference)

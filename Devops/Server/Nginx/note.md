@@ -1,9 +1,10 @@
 # NGINX
-updated 2020.05.17
-<br>
+updated 2020.05.20
 
 ## 개요
-웹 서버 소프트웨어로, 가벼움과 높은 성능을 목표로 한다. **더 적은 자원으로 더 빠르게 데이터를 서비스 할 수 있다.**
+NGINX는 웹 서버 소프트웨어로, 가벼움과 높은 성능을 목표로 한다. <br> 
+**더 적은 자원으로 더 빠르게 데이터를 서비스 할 수 있다.** <br>
+공부한 내용을 기록하기 위해 기술한다.
 
 ## 1. 시작하기
 웹 서버 Nginx를 설치하기에 앞서 운영체제가 필요하다.
@@ -95,8 +96,8 @@ nginx 폴더 하의 **configure** 파일을 통해 명령어로 환경설정을 
 ```
 뭘 해야 할 지 모를 때는 <br>
 **--help** 플래그를 붙인다. 어떻게 환경설정을 해야 할 지 상세히 설명 해준다. <br>
-혹은 웹사이트 방문 http://nginx.org/en/docs/configure.html
-
+<small>(!) --with-http_ssl_module와 같은 정적모듈은 NGINX 서버가 자동으로 로드 한다.</small><br><br>
+혹은 웹사이트 방문 http://nginx.org/en/docs/configure.html <br>
 ### 2-4. 컴파일
 컴파일 하기 위해서는 C, C++ 컴파일러가 필요하다. 
 ```
@@ -332,6 +333,39 @@ server {
  두번 째, 클라이언트가 접근한 image.png가 서버에 존재하지 않으면 다음 인수로 변경. <br>
  세번 쨰, 재작성 되는건 **가장 마지막 인수**의 /path3이며 문자열 "404"를 응답한다.
 
+### buffer_size
+NGINX는 모든 요청과 응답을 RAM의 Buffer에 일시적으로 보존한다. <br>
+그에 관련된 지시자들. <br>
+```
+client_body_buffer_size   10K;
+
+# 최대 8M을 초과하면 413 에러를 발생시킴.
+client_max_body_size      8M;
+
+# 클라이언트로부터 요청된 헤더의 크기 1K는 대부분의 요청을 수용하기에 충분하다.
+client_header_buffer_size 1K;
+```
+### timeout
+단순하게 클라이언트를 받은 요청을 끊기 위한 지시자. 무한한 데이터 스트림으로 부터 서버를 방어하기 위함.
+```
+# 클라이언트 헤더와 바디를 수용하는 최대 연결 시간. (ms,s,m,h,d)
+client_body_timeout   12;
+client_header_timeout 12;
+
+# 커넥션 대기시간
+keepalive_timeout     15;
+
+# 클라이언트가 언제까지 응답을 받을 수 있는가 
+send_timeout          10;
+
+# 버퍼에 정적파일을 보존 해도 되는가
+sendfile              on;
+
+# 송신되는 패킷 최적화
+tcp_nopush            on;
+```
+
+<small>(!) milliseconds는 생략이다.</small>
 
 ## 5. Variable
 ```
@@ -383,7 +417,7 @@ location /test {
 ## 7. PHP-FPM
  PHP FastCGI Process Manger의 약자로, CGI보다 빠른 버전이라고 말할 수 있다. CGI란, 웹 서버에서 요청을 받아 외부 프로그램에 넘겨주면, 외부 프로그램은 그 파일을 읽어 HTML로 변환하는 단계를 거치는 것.
 
-### 7-1. 설치하기
+#### 7-1. 설치하기
 ```
 # ubuntu18
 
@@ -399,7 +433,7 @@ phpsessionclean.timer                                              loaded active
    Active: active (running) since Mon 2020-05-18 20:17:38 UTC; 3min 6s ago
 ```
 
-### 7-2. 설정하기
+#### 7-2. 설정하기
 ```
 user [PHP-FPM과 동일한 유저명]
 
@@ -429,7 +463,7 @@ find / -name *fpm.sock
 <small> (!) **권한** 에러가 발생 할 경우 nginx의 user를 php-fpm.sock와 동일하게 해주어야 한다. </small> 
 
 ## 8. Worker Process
-작업 프로세스라고 불리우며 Nginx 메인 프로세스의 하위 프로세스이다.
+NGINX에서 실질적인 작업을 수행하는 프로세스.
 ```
 root@yuu2:/sites/demo# systemctl status nginx
 ● nginx.service - The NGINX HTTP and reverse proxy server
@@ -456,7 +490,27 @@ http {
 그리고 최대로 연결 할 수 있는 커넥션의 수 는 **작업 프로세스 X 작업 커넥션** 이다. <br>
 <small> (!) 리눅스에서는 ulimit -n 를 이용하여 한계치를 찾을 수 있다. </small>
 
+## 09. Dynamic Module
+NGINX를 직접 설치함으로서 얻는 이익중 하나는 바로 동적모듈을 설치하여 다양한 기능을 커스터마이즈 할 수 있다. <br>
+https://docs.nginx.com/nginx/admin-guide/dynamic-modules/dynamic-modules/ <br><br>
+
+./configure를 통해 conf-path와 module등의 환경설정을 했던 것을 기억 할 것이다. 이 과정을 통해서 Dynamic Module을 추가 할 수 있다.
+```
+nginx -V
+```
+기존의 설정을 복사 한 후 **--modules-path=[모듈폴더위치]** 와
+추가할 모듈을 추가한 후 컴파일한다. <br><
+```
+load_module [모듈폴더의 .sock]
+
+http {}
+```
+<small>(!) NGINX의 환경에 따라 모듈 경로가 /usr/local/nginx로 설정 되는 경우가 있었다. <br>--modules-path=[모듈폴더경로] 대신에 --prefix=[모듈폴더상위경로] 로 수정하면 된다.</small>
+
+
+
 
 ## 참조 (Reference)
+https://www.udemy.com/course/nginx-fundamentals/ <br>
 http://nginx.org/ <br>
 https://ko.wikipedia.org/wiki/Nginx <br>

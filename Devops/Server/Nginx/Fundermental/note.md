@@ -1,12 +1,12 @@
 # NGINX
-updated 2020.05.20
+updated 2020.05.25
 
 ## 개요
 NGINX는 웹 서버 소프트웨어로, 가벼움과 높은 성능을 목표로 한다. <br> 
 **더 적은 자원으로 더 빠르게 데이터를 서비스 할 수 있다.** <br>
-공부한 내용을 기록하기 위해 기술한다.
+기초 내용을 기록하기 위해 기술한다.
 
-## 1. 시작하기
+## 시작하기
 웹 서버 Nginx를 설치하기에 앞서 운영체제가 필요하다.
 보편적으로 배포용 서버는 리눅스(Linux) 계통을 이용한다.
 
@@ -14,9 +14,9 @@ NGINX는 웹 서버 소프트웨어로, 가벼움과 높은 성능을 목표로 
 2. 페도라(Fedora)
 3. 우분투(Ubuntu)
 
-## 2. 설치하기
+## 설치하기
 
-### 2-1-1. 패키지 매니저를 통한 설치
+### 1-1. 패키지 매니저를 통한 설치
 간편하게 All-In-One으로 Nginx를 설치 할 수 있다는 장점이 있다.
 
 #### 우분투(Ubuntu)
@@ -48,7 +48,7 @@ nginx를 다시 설치하고 센토스에서는 자동적으로 nginx를 실행�
 service nginx start
 ```
 
-### 2-1-2. 소스(Source)를 통한 설치법
+### 1-2. 소스(Source)를 통한 설치법
 운영체제 내에서 소스를 다운 받는다.
 (예제 환경은 리눅스 Ubuntu 18 에서 진행 했다.)
 ```
@@ -56,7 +56,7 @@ wget http://nginx.org/download/파일.tar.gz
 
 tar -zxvf 파일.tar.gz 
 ```
-### 2-2. 의존성 패키지 설치
+### 2. 의존성 패키지 설치
 ##### PCRE (Perl Compatible Regular Expressions)
 펄 프로그래밍 언어의 정규 표현식 기능에 착안하여 만든, 정규 표현식 C 라이브러리
 ```
@@ -79,7 +79,7 @@ TLS (SSL과 TLS 프로토콜) 을 지원하는 Open SSL 라이브러리이다.
 apt-get install libssl-dev
 yum install openssl-devel
 ```
-### 2-3. 환경설정
+### 3. 환경 설정
 nginx 폴더 하의 **configure** 파일을 통해 명령어로 환경설정을 해야 한다.
 
 ```
@@ -96,9 +96,10 @@ nginx 폴더 하의 **configure** 파일을 통해 명령어로 환경설정을 
 ```
 뭘 해야 할 지 모를 때는 <br>
 **--help** 플래그를 붙인다. 어떻게 환경설정을 해야 할 지 상세히 설명 해준다. <br>
-<small>(!) --with-http_ssl_module와 같은 정적모듈은 NGINX 서버가 자동으로 로드 한다.</small><br><br>
+<small>[!] --with-http_ssl_module와 같은 정적모듈은 NGINX 서버가 자동으로 로드 한다.</small><br><br>
 혹은 웹사이트 방문 http://nginx.org/en/docs/configure.html <br>
-### 2-4. 컴파일
+
+### 4. 컴파일
 컴파일 하기 위해서는 C, C++ 컴파일러가 필요하다. 
 ```
 # Ubuntu
@@ -113,7 +114,7 @@ make
 # 설치 명령어
 make install
 ```
-### 2-5. 서비스 등록
+### 5. 서비스 등록
 Nginx를 편리하게 이용하기 위해서 서비스를 등록 할 수 있다.
 
 ### systemd
@@ -135,7 +136,7 @@ symlink를 생성하면 운영체제를 재시작 시켜줘야한다.
 reboot
 ```
 
-## 3. Context
+## Context
 NGINX의 소스코드를 작성하기 위해서 규약(Term)을 이해해야한다.
 
 ```conf
@@ -169,7 +170,7 @@ NGINX 검사는 아래 명령어로 수행한다.
 nginx -t
 ```
 
-## 4. Directive 
+## Directive 
 컴파일러가 입력을 처리하는 방법을 지정하는 언어 구조. **지시자** 라고 한다. <br>
 ```
 # 어떤 것을 포함 시킬 지 지시하는 include
@@ -180,18 +181,18 @@ access_log /var/log/nginx/access.log
 ```
 지시자의 종류에는 넓은 의미로 세가지를 꼽을 수 있다. <br>
 
-### 4-1. Array Directive
+### 1. Array Directive
 **전역 컨텍스트에 위치하는 지시자**. <br> 
 기존 세팅의 오버라이딩 없이 중복 정의가 가능 하며, 모든 자식 컨텍스트에 영향을 끼친다. <br>
 그리고, 그 자식 컨텍스트는 위 지시자를 다시 선언 함으로써 재정의 할 수도 있다. 
 <br>
 
-### 4-2. Standard Directive
+### 2. Standard Directive
 **전역 컨텍스트의 자식 컨텍스트 지시자**. <br>
 단 한번만 선언 가능하며, 다시 선언 할 경우 오버라이딩 된다.
 또한 부모 컨텍스트를 상속한다. <br>
 
-### 4-3. Action Directive
+### 3. Action Directive
 **응답 또는 우회를 위한 지시자**. <br>
 응답(return) 또는 우회(redirect)을 지시한다. 그리고 요청에 대한 응답(response)의 정지 또는
 재작성(rewrite)은 상속이 불가하다.
@@ -285,8 +286,10 @@ location {
 }
 ```
 **정규식표현**에 해당되는 경로에 액세스 할 때 리턴. <br>
-<small> ***~** 는 **~에 해당되지 않는 경로**에 액세스 할 때 리턴한다. </small><br>
-<small> **^~** 는 **정규표현식 경로와 중첩된 경로**에 액세스 할 때 우선적으로 리턴한다.</small>
+<small> ~ 는 정규식과 일치 할 때 리턴한다. </small><br>
+<small> ^~ 는 지정한 패턴으로 시작 할때 리턴</small><br>
+<small> ~* 는 대소문자 구분없이 정규식과 일치 할 때 리턴한다.</small><br>
+
 
 ### rewrite
 요청을 통해서 주어진 URL의 규칙을 변경해서 웹서비스를 보다 유연하게 만드는 방법.
@@ -337,13 +340,13 @@ server {
 NGINX는 모든 요청과 응답을 RAM의 Buffer에 일시적으로 보존한다. <br>
 그에 관련된 지시자들. <br>
 ```
-client_body_buffer_size   10K;
+client_body_buffer_size   10k;
 
 # 최대 8M을 초과하면 413 에러를 발생시킴.
-client_max_body_size      8M;
+client_max_body_size      8m;
 
 # 클라이언트로부터 요청된 헤더의 크기 1K는 대부분의 요청을 수용하기에 충분하다.
-client_header_buffer_size 1K;
+client_header_buffer_size 1k;
 ```
 ### timeout
 단순하게 클라이언트를 받은 요청을 끊기 위한 지시자. 무한한 데이터 스트림으로 부터 서버를 방어하기 위함.
@@ -364,14 +367,65 @@ sendfile              on;
 # 송신되는 패킷 최적화
 tcp_nopush            on;
 ```
+<small>[!] milliseconds는 생략이다.</small>
 
-<small>(!) milliseconds는 생략이다.</small>
+### header & expires
+웹자원을 효율적으로 쓰기 위해서 캐시(cache) 기능을 이용해야한다.
+```
+# 캐시를 어떤식으로 쓸지 설정하는 헤더
+add_header Cache-Control [public, private, no-cache, no-store ..]
 
-## 5. Variable
+# 언제 만료되는지 설정하는 헤더
+expires 1M;
+```
+
+### gzip
+정적자원을 응답데이터로 보낼때 압축해서 전송하는 기술. <br>
+```
+gzip [on|off];
+
+# 압축 레벨이 높을 수록 서버에 과부하를 일으킴
+gzip_comp_level[1~10];
+
+# 어떤 타입을 압축할지 설정
+gzip_types [text/css|text/javascript ...]
+
+```
+
+### worker_processes
+NGINX에서 실질적인 작업을 수행하는 프로세스.
+```
+root@yuu2:/sites/demo# systemctl status nginx
+● nginx.service - The NGINX HTTP and reverse proxy server
+  Process: 30904 ExecReload=/usr/bin/nginx -s reload (code=exited, status=0/SUCCESS)
+ Main PID: 852 (nginx)
+    Tasks: 2 (limit: 1152)
+   CGroup: /system.slice/nginx.service
+           ├─  852 nginx: master process /usr/bin/nginx
+
+           # 이 부분에 해당함.
+           └─30905 nginx: worker process
+```
+작업 프로세스의 설정은 .conf 파일에서 지정 할 수 있다.
+```
+worker_processes [숫자 또는 auto]
+
+events {
+  worker_connections [한계치]
+}
+
+http {
+  ...
+```
+그리고 최대로 연결 할 수 있는 커넥션의 수 는 **작업 프로세스 X 작업 커넥션** 이다. <br>
+<small> [!] 리눅스에서는 ulimit -n 를 이용하여 한계치를 찾을 수 있다. </small>
+
+
+## Variable
 ```
 set $var [변수];
 ```
-#### 5-1. Nginx에서 제공하는 변수
+#### 1. Nginx에서 제공하는 변수
 ```
 $host 호스트명
 $uri  URI
@@ -385,7 +439,7 @@ location /test {
   return 200 "$host\n$uri\n";
 }
 ```
-#### 5-2. 조건문을 이용한 간단한 예제
+#### 2. 조건문을 이용한 간단한 예제
 ```
 # 예제 (?api=1234 또는 ?api=가나다라를 입력해야 200을 리턴)
 server {
@@ -396,7 +450,7 @@ server {
 }
 ```
 
-## 6. Logging
+## Logging
 기본적으로 NGINX에서는 요청이 왔을 때 **access.log**와 에러가 발생 했을 때 **error.log** 두가지 로그를 기록한다. <br><br>
 한 편, 커스텀 로그를 기록 하는 방법과 이러한 로그를 기록 하는 행위는 서버에 부하를 일으키므로 무효화 할 수도 있다.
 ```
@@ -414,10 +468,10 @@ location /test {
 
 ```
 
-## 7. PHP-FPM
+## PHP-FPM
  PHP FastCGI Process Manger의 약자로, CGI보다 빠른 버전이라고 말할 수 있다. CGI란, 웹 서버에서 요청을 받아 외부 프로그램에 넘겨주면, 외부 프로그램은 그 파일을 읽어 HTML로 변환하는 단계를 거치는 것.
 
-#### 7-1. 설치하기
+#### 1. 설치하기
 ```
 # ubuntu18
 
@@ -433,7 +487,7 @@ phpsessionclean.timer                                              loaded active
    Active: active (running) since Mon 2020-05-18 20:17:38 UTC; 3min 6s ago
 ```
 
-#### 7-2. 설정하기
+#### 2. 설정하기
 ```
 user [PHP-FPM과 동일한 유저명]
 
@@ -460,38 +514,40 @@ location 컨텍스트에 PHP-FPM 소켓 지시자가 추가된 것을 확인 할
 # PHP-FPM 소켓 찾기
 find / -name *fpm.sock
 ```
-<small> (!) **권한** 에러가 발생 할 경우 nginx의 user를 php-fpm.sock와 동일하게 해주어야 한다. </small> 
+<small> [!] **권한** 에러가 발생 할 경우 nginx의 user를 php-fpm.sock와 동일하게 해주어야 한다. </small>
 
-## 8. Worker Process
-NGINX에서 실질적인 작업을 수행하는 프로세스.
+### 3. Micro Cash
+NGINX에서 응답이나 요청을 주고 건낼 때 PHP-FPM Cache는 마이크로 캐시 기능으로 퍼포먼스를 향상 시킬 수 있다.<br>
+http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html
 ```
-root@yuu2:/sites/demo# systemctl status nginx
-● nginx.service - The NGINX HTTP and reverse proxy server
-  Process: 30904 ExecReload=/usr/bin/nginx -s reload (code=exited, status=0/SUCCESS)
- Main PID: 852 (nginx)
-    Tasks: 2 (limit: 1152)
-   CGroup: /system.slice/nginx.service
-           ├─  852 nginx: master process /usr/bin/nginx
+# 캐시 경로 설정
+fastcgi_cache_path /tmp/nginx_cache levels=1:2 keys_zone=ZONE_1:100m inactive=60m;
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+add_header X-Cache $upstream_cache_status;
 
-           # 이 부분에 해당함.
-           └─30905 nginx: worker process
-```
-작업 프로세스의 설정은 .conf 파일에서 지정 할 수 있다.
-```
-worker_processes [숫자 또는 auto]
+set $no_cache 0;
 
-events {
-  worker_connections [한계치]
+if ($arg_skipcache = 1) {
+  set $no_cache = 1;
 }
 
-http {
-  ...
-```
-그리고 최대로 연결 할 수 있는 커넥션의 수 는 **작업 프로세스 X 작업 커넥션** 이다. <br>
-<small> (!) 리눅스에서는 ulimit -n 를 이용하여 한계치를 찾을 수 있다. </small>
+server {
 
-## 09. Dynamic Module
-NGINX를 직접 설치함으로서 얻는 이익중 하나는 바로 동적모듈을 설치하여 다양한 기능을 커스터마이즈 할 수 있다. <br>
+  location ~\.php$ {
+    
+    fastcgi_cache ZONE_1;
+
+    # 상태코드에 따른 캐싱 시간 설정
+    fastcgi_cache_valid 200 60m;
+
+    fastcgi_cache_bypass $no_cache;
+    fastcgi_no_cache     $no_cache;
+  }
+}
+```
+
+## Dynamic Module
+NGINX를 직접 설치함으로서 얻는 이익중 하나는 바로 동적모듈을 설치하여 다양한 기능을 커스터마이즈 할 수 있다는 점이다. <br>
 https://docs.nginx.com/nginx/admin-guide/dynamic-modules/dynamic-modules/ <br><br>
 
 ./configure를 통해 conf-path와 module등의 환경설정을 했던 것을 기억 할 것이다. 이 과정을 통해서 Dynamic Module을 추가 할 수 있다.
@@ -499,18 +555,175 @@ https://docs.nginx.com/nginx/admin-guide/dynamic-modules/dynamic-modules/ <br><b
 nginx -V
 ```
 기존의 설정을 복사 한 후 **--modules-path=[모듈폴더위치]** 와
-추가할 모듈을 추가한 후 컴파일한다. <br><
+추가할 모듈을 추가한 후 컴파일하도록 하자. <br><br>
 ```
 load_module [모듈폴더의 .sock]
 
 http {}
 ```
-<small>(!) NGINX의 환경에 따라 모듈 경로가 /usr/local/nginx로 설정 되는 경우가 있었다. <br>--modules-path=[모듈폴더경로] 대신에 --prefix=[모듈폴더상위경로] 로 수정하면 된다.</small>
+<small>[!] NGINX의 환경에 따라 모듈 경로가 /usr/local/nginx로 설정 되는 경우가 있었다. <br>--modules-path=[모듈폴더경로] 대신에 --prefix=[모듈폴더상위경로] 로 수정하면 된다.</small>
+
+## 9. HTTP2
+NGINX는 HTTP2 모듈을 제공한다. <br>
+문자열 기반으로 전송하는 HTTP1에 비하여 클라이언트-서버간의 전송 퍼포먼스를 향상 시킬 수 있다.
+
+<small>**[!] NGINX HTTP2 모듈을 추가해야한다.**</small><br>
+<small>**[!] HTTP2는 SSL 인증서가 필요하다.**</small>
+
+```
+server {
+
+  listen 443 ssl http2; 
+
+  ssl_certificate     [인증서 경로]
+  ssl_certificate_key [인증키 경로]
+  
+}
+```
+http://nginx.org/en/docs/http/ngx_http_v2_module.html
+
+<br>
+
+#### Server Push
+인터넷 상에서 어떤 전송 요청이 중앙 서버에서 시작되는 정보 전달 방식.
+
+```
+# 테스트 툴
+apt-get install nghttp2-client
+
+nghttp -nys [URL]
+```
+asterisk가 붙어 있으면 서버 푸시가 된 상태.
+```
+# nginx.conf
+
+server {
+
+  location [경로] {
+    http2_push [정적자원]
+    http2_push [정적자원]
+    ...
+  }
+}
+```
+## HTTPS
+HTTP에 보안을 덧 붙인 형태. 오늘날에 HTTPS를 제공하는 방식은 두가지가 있다. <br>
+
+<small>첫째, HTTP에서 HTTPS로 리다이렉팅</small> <br>
+
+```
+server {
+  listen 80;
+  return 301 https://$host/$request_uri;
+}
+
+server {
+  listen 443 ssl https;
+}
+```
+
+<small>둘째, HTTPS만 제공하는 것.</small><br><br>
+당연한 소리 인 것 같지만 당연한 소리 맞다...
+
+HTTPS를 제공하기 위해서는 다음과 같은 설정을 해야한다.
+
+```
+server {
+
+  # TLS
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2
+
+  # Cipher Suits 최적화
+  ssl_prefer_server_ciphers on;
+
+  # 헬만파라미터(DH Parameter) 이용
+  ssl_ciphers [ 헬만파라미터 ];
+
+  ssl_dhparam [ dhparam이 있는 경로 ];
+  
+  # HTTPS를 강제하기 위한 HSTS 적용. (max-age : 기한 1년)
+  add_header Strict-Transport-Security "max-age=31356000" always;
+
+  # SSL 세션 캐시
+  # builtin은 worker process와 관계가 있고 shared는 메모리 성능과 관련이 있다.
+  ssl_session_cache shared:SSL:40m;
+  ssl_session_timeout 4h;
+  ssl_session_ticket on;
+
+  ...
+}
+```
+
+<small>[!] ssl_ciphers '헬만파라미터'는 서버성능에 비례하게 높이도록 해야한다. 보안수준이 복잡하면 서버에 부하를 일으킨다.</small><br>
+
+<small>[!] dhparam 키 얻는 법 'openssl dhparam -out [경로]'</small><br><br>
+
+http://nginx.org/en/docs/http/configuring_https_servers.html
+
+## Rate Limiting
+서버에 트래픽이 몰릴 경우 커넥션을 거부하기 위한 방법. <br>
+https://www.nginx.com/blog/rate-limiting-nginx/ <br>
+```
+# 우선 테스트를 위한 벤치마킹 툴 설치
+apt-get install siege
+
+# -r: 요청 횟수 / -c : 커넥션
+siege -v -r 2 -c 5 [ 경로 ]
+
+# 2 x 5 = 10회의 트랜잭션이 생성됨
+
+HTTP/1.1 200     0.01 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.01 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.02 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.01 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.02 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.01 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.01 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.02 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.02 secs:   12627 bytes ==> GET  /index.html
+HTTP/1.1 200     0.01 secs:   12627 bytes ==> GET  /index.html
+```
+커넥션 제한을 위한 설정도 필요하다.
+```
+# nginx.conf
+
+http {
 
 
+  limit_req_zone $request_uri zone=TESTZONE:10m rate=1r/s burst=5 nodelay;
+  
+  location / {
+    limit_req_zone=TESTZONE;
+  }
+}
+```
+<small>rate : 60r/m 1분에 60번의 요청만 수행, 1r/s 1초에 1번의 요청만 수행</small><br>
+<small>$server_name : 서버 명을 기준으로 제한</small><br>
+<small>$request_uri : uri를 기준으로 제한</small><br>
+<small>$binary_remote_addr : IP 를 기준으로 제한. 각각의 커넥션은 고유의 아이피를 가진다. brute force attack에 효과적 </small><br>
+<small>burst : 즉시 거절이 아닌 버퍼에 보존하고 1초 한번씩 지연 응답한다.</small><br>
+<small>nodelay : 1초당 지연 응답을 즉시 응답으로 설정한다.</small>
 
+## Basic Auth
+특정 경로에 접근 할 때 권한이 있는 유저에게만 접근을 허용하게 함 <br>
+https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/ <br>
+```
+apt-get install apache2-utils
+
+# -c : 신규생성을 의미한다.
+htpasswd -c [DIR] [USER_NAME]
+```
+이후 암호를 입력하면 경로에 암호화 파일이 생성 된다.
+```
+# nginx.conf
+
+location [URL] {
+  auth_basic           [보여줄 메시지 아무거나 입력~?];
+  auth_basic_user_file [DIR];
+}
+```
 
 ## 참조 (Reference)
-https://www.udemy.com/course/nginx-fundamentals/ <br>
 http://nginx.org/ <br>
-https://ko.wikipedia.org/wiki/Nginx <br>
+https://docs.nginx.com/ <br>
+https://www.udemy.com/course/nginx-fundamentals/ <br>

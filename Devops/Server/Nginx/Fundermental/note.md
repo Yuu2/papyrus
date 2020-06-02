@@ -96,8 +96,9 @@ nginx 폴더 하의 **configure** 파일을 통해 명령어로 환경설정을 
 ```
 뭘 해야 할 지 모를 때는 <br>
 **--help** 플래그를 붙인다. 어떻게 환경설정을 해야 할 지 상세히 설명 해준다. <br>
-<small>[!] --with-http_ssl_module와 같은 정적모듈은 NGINX 서버가 자동으로 로드 한다.</small><br><br>
-혹은 웹사이트 방문 http://nginx.org/en/docs/configure.html <br>
+<small>[!] --with-http_ssl_module와 같은 정적모듈은 NGINX 서버가 자동으로 로드 한다.</small><br>
+<small>[!] --with는 포함이고 --without은 기존에 있는 모듈을 제거.</small><br>
+http://nginx.org/en/docs/configure.html <br>
 
 ### 4. 컴파일
 컴파일 하기 위해서는 C, C++ 컴파일러가 필요하다. 
@@ -420,6 +421,48 @@ http {
 그리고 최대로 연결 할 수 있는 커넥션의 수 는 **작업 프로세스 X 작업 커넥션** 이다. <br>
 <small> [!] 리눅스에서는 ulimit -n 를 이용하여 한계치를 찾을 수 있다. </small>
 
+### server_tokens
+Nginx의 서버 버전을 숨길지 설정한다.
+```
+http {
+  
+  server_tokens off;
+
+}
+```
+### X-Frame-Options
+다른 웹사이트에서 iframe과 같은 코드로 참조하는 것을 방어한다.
+```
+server {
+  
+  add_header X-Frame Options "SAMEORIGIN";
+
+}
+```
+### X-XSS-Protection
+크로스 사이트 스크립팅을 방어한다.
+```
+server {
+  
+  add_header X-XSS-Protection "1; mode=block";
+
+}
+```
+### Reverse Proxy
+클라이언트로 부터 받은 요청을 다른 서버로 전달 한 뒤 그 결과 값을 클라이언트에게 전달한다.
+```
+server {
+
+  location / {
+    
+    # 클라이언트에 전달되는 프록시 요청임을 뜻하는 커스텀 헤더
+    proxy_set_header proxied nginx;
+    
+    proxy_pass [다른 서버의 경로]/;
+
+  }
+}
+```
 
 ## Variable
 ```

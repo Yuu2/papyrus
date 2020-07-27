@@ -765,6 +765,31 @@ location [URL] {
   auth_basic_user_file [DIR];
 }
 ```
+## Load Balancer
+클라이언트들의 요청을 여러 앱서버로 분산하는 방법
+
+```
+http {
+
+  upstream php_servers {
+
+    # ip_hash;       처음 서버가 다운되면 다음 서버가 응답..
+    # least_conn;    부하가 가장 적은 서버가 응답..
+    server localhost:10001;
+    server localhost:10002;
+    server localhost:10003;
+  }
+
+  # HTTP
+  server {
+    
+    listen 80;
+
+    proxy_pass http://php_servers;
+  }
+}
+```
+
 
 ## 참조 (Reference)
 http://nginx.org/ <br>

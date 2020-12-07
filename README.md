@@ -1,13 +1,11 @@
 # Index
-updated 2020.06.02 <br>
+updated 2020.12.07 <br>
 ```
 DevOps:
   |- Server:
         |- NGINX
 Java:
   |- Spring
-JavaScript
-  |- Vanilla
 PHP:
   |- Symfony
 ```

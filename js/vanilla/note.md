@@ -42,7 +42,7 @@ nums.reduce((accumulator, val, idx) => {
 ```
 https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
 
-## Element.innerHTML
+## innerHTML
 > 요소에 속한 HTML 출력
 ```html
 <form>
